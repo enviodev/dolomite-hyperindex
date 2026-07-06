@@ -1,0 +1,328 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "accountIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "inputToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "outputToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "withdrawalToken",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Types.Wei",
+            "name": "deltaWei",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint128",
+                "name": "value",
+                "type": "uint128"
+              }
+            ],
+            "internalType": "struct Types.Par",
+            "name": "newPar",
+            "type": "tuple"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Events.BalanceUpdate",
+        "name": "inputBalanceUpdate",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Types.Wei",
+            "name": "deltaWei",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint128",
+                "name": "value",
+                "type": "uint128"
+              }
+            ],
+            "internalType": "struct Types.Par",
+            "name": "newPar",
+            "type": "tuple"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Events.BalanceUpdate",
+        "name": "outputBalanceUpdate",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Types.Wei",
+            "name": "deltaWei",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint128",
+                "name": "value",
+                "type": "uint128"
+              }
+            ],
+            "internalType": "struct Types.Par",
+            "name": "newPar",
+            "type": "tuple"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Events.BalanceUpdate",
+        "name": "marginWithdrawalUpdate",
+        "type": "tuple"
+      }
+    ],
+    "name": "MarginPositionClose",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "accountIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "inputToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "outputToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "depositToken",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Types.Wei",
+            "name": "deltaWei",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint128",
+                "name": "value",
+                "type": "uint128"
+              }
+            ],
+            "internalType": "struct Types.Par",
+            "name": "newPar",
+            "type": "tuple"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Events.BalanceUpdate",
+        "name": "inputBalanceUpdate",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Types.Wei",
+            "name": "deltaWei",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint128",
+                "name": "value",
+                "type": "uint128"
+              }
+            ],
+            "internalType": "struct Types.Par",
+            "name": "newPar",
+            "type": "tuple"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Events.BalanceUpdate",
+        "name": "outputBalanceUpdate",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Types.Wei",
+            "name": "deltaWei",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "sign",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint128",
+                "name": "value",
+                "type": "uint128"
+              }
+            ],
+            "internalType": "struct Types.Par",
+            "name": "newPar",
+            "type": "tuple"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Events.BalanceUpdate",
+        "name": "marginDepositUpdate",
+        "type": "tuple"
+      }
+    ],
+    "name": "MarginPositionOpen",
+    "type": "event"
+  }
+]

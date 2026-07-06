@@ -1,0 +1,753 @@
+### Dolomite protocol — HyperIndex schema, ported 1:1 from dolomite-subgraph/schema.graphql.
+### Conventions (same as the dolomite-liquidator-hyperindex port):
+###  - No @entity decorator (Envio implicit); id is always first.
+###  - All ids are namespaced with `${chainId}-` (single multichain indexer; addresses
+###    repeat across chains). Addresses arrive lowercased via address_format: lowercase.
+###  - Non-derived entity-reference arrays (e.g. `[Token!]!` without @derivedFrom) are not
+###    supported by Envio, so they are stored as `[String!]!` (arrays of the entity ids).
+###  - @derivedFrom is kept ONLY where the child's backing field is a singular entity
+###    reference. The subgraph's User.{transfers,trades,liquidations,vaporizations} derive
+###    from the ARRAY field `effectiveUsers`, which Envio can't do — those reverse lookups
+###    are dropped (query via the child entities' effectiveUsers id arrays instead).
+###  - status/type fields stay String! (the subgraph uses documented string enums).
+###  - @index added on common filter fields (id and @derivedFrom fields are auto-indexed).
+
+type AmmFactory {
+  id: ID! # `${chainId}-${factoryAddress}`
+  pairCount: Int!
+  totalAmmVolumeUSD: BigDecimal!
+  ammLiquidityUSD: BigDecimal!
+  transactionCount: BigInt!
+  ammTradeCount: BigInt!
+  ammMintCount: BigInt!
+  ammBurnCount: BigInt!
+}
+
+type DolomiteMargin {
+  id: ID! # `${chainId}-${dolomiteMarginAddress}`
+  numberOfMarkets: Int!
+  liquidationRatio: BigDecimal!
+  liquidationReward: BigDecimal!
+  earningsRate: BigDecimal!
+  minBorrowedValue: BigDecimal!
+  accountMaxNumberOfMarketsWithBalances: BigInt!
+  expiryRampTime: BigInt!
+  oracleSentinel: Bytes
+  callbackGasLimit: BigInt
+  defaultAccountRiskOverrideSetter: Bytes
+  supplyLiquidityUSD: BigDecimal!
+  borrowLiquidityUSD: BigDecimal!
+  lastTransactionHash: Bytes!
+  totalBorrowVolumeUSD: BigDecimal!
+  totalLiquidationVolumeUSD: BigDecimal!
+  totalSupplyVolumeUSD: BigDecimal!
+  totalTradeVolumeUSD: BigDecimal!
+  totalVaporizationVolumeUSD: BigDecimal!
+  totalZapVolumeUSD: BigDecimal!
+  userCount: BigInt!
+  marginPositionCount: BigInt!
+  borrowPositionCount: BigInt!
+  actionCount: BigInt!
+  liquidationCount: BigInt!
+  tradeCount: BigInt!
+  transactionCount: BigInt!
+  vaporizationCount: BigInt!
+  zapCount: BigInt!
+  vestingPositionTransferCount: BigInt!
+  settings: [DolomiteSetting!]! @derivedFrom(field: "dolomite")
+}
+
+type GlobalOperator {
+  id: ID! # `${chainId}-${operatorAddress}`
+}
+
+type SpecialAutoTrader {
+  id: ID! # `${chainId}-${autoTraderAddress}`
+}
+
+type Token {
+  id: ID! # `${chainId}-${tokenAddress}`
+  chainId: Int!
+  symbol: String! @index
+  name: String!
+  decimals: BigInt!
+  isIsolationMode: Boolean!
+  marketId: BigInt! @index
+  tradeVolume: BigDecimal!
+  tradeVolumeUSD: BigDecimal!
+  transactionCount: BigInt!
+  ammTradeLiquidity: BigDecimal!
+  supplyLiquidity: BigDecimal!
+  supplyLiquidityUSD: BigDecimal!
+  borrowLiquidity: BigDecimal!
+  borrowLiquidityUSD: BigDecimal!
+  derivedETH: BigDecimal
+  pairBase: [AmmPair!]! @derivedFrom(field: "token0")
+  pairQuote: [AmmPair!]! @derivedFrom(field: "token1")
+  # NOTE: subgraph had singular one-to-one derived fields interestRate/interestIndex/
+  # riskInfo/totalPar here. Envio only supports list-valued @derivedFrom, so these are
+  # dropped — each child entity shares this token's id (`${chainId}-${tokenAddress}`),
+  # so fetch them directly by id instead.
+  settings: [TokenSetting!]! @derivedFrom(field: "token")
+}
+
+type TokenMarketIdReverseLookup {
+  id: ID! # `${chainId}-${marketId}`
+  token: Token!
+}
+
+type IsolationModeVaultReverseLookup {
+  id: ID! # `${chainId}-${vaultAddress}`
+  token: Token!
+  vault: User!
+  owner: User! @index
+}
+
+type AmmPairReverseLookup {
+  id: ID! # `${chainId}-${token0}-${token1}`
+  pair: AmmPair!
+}
+
+type AmmPair {
+  id: ID! # `${chainId}-${pairAddress}`
+  token0: Token! @index
+  token1: Token! @index
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  totalSupply: BigDecimal!
+  reserveETH: BigDecimal!
+  reserveUSD: BigDecimal!
+  trackedReserveETH: BigDecimal!
+  token0Price: BigDecimal!
+  token1Price: BigDecimal!
+  volumeToken0: BigDecimal!
+  volumeToken1: BigDecimal!
+  volumeUSD: BigDecimal!
+  transactionCount: BigInt!
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+  liquidityProviderCount: BigInt!
+  liquidityPositions: [AmmLiquidityPosition!]! @derivedFrom(field: "pair")
+  liquidityPositionSnapshots: [AmmLiquidityPositionSnapshot!]! @derivedFrom(field: "pair")
+  ammMints: [AmmMint!]! @derivedFrom(field: "pair")
+  ammBurns: [AmmBurn!]! @derivedFrom(field: "pair")
+  ammTrades: [AmmTrade!]! @derivedFrom(field: "pair")
+}
+
+type User {
+  id: ID! # `${chainId}-${userAddress}`
+  effectiveUser: User! @index
+  accountRiskOverrideSetter: Bytes
+  totalBorrowVolumeOriginatedUSD: BigDecimal!
+  totalCollateralLiquidatedUSD: BigDecimal!
+  totalTradeVolumeUSD: BigDecimal!
+  totalZapVolumeUSD: BigDecimal!
+  totalBorrowPositionCount: BigInt!
+  totalLiquidationCount: BigInt!
+  totalMarginPositionCount: BigInt!
+  totalTradeCount: BigInt!
+  totalZapCount: BigInt!
+  isEffectiveUser: Boolean! @index
+  isolationModeVault: Token
+  liquidityPositions: [AmmLiquidityPosition!]! @derivedFrom(field: "user")
+  marginAccounts: [MarginAccount!]! @derivedFrom(field: "user")
+  borrowPositions: [BorrowPosition!]! @derivedFrom(field: "effectiveUser")
+  strategies: [StrategyPosition!]! @derivedFrom(field: "effectiveUser")
+  marginPositions: [MarginPosition!]! @derivedFrom(field: "effectiveUser")
+  deposits: [Deposit!]! @derivedFrom(field: "effectiveUser")
+  withdrawals: [Withdrawal!]! @derivedFrom(field: "effectiveUser")
+  # NOTE: subgraph also derived transfers/trades/liquidations/vaporizations from the
+  # `effectiveUsers` ARRAY field — Envio can't derive from array fields, so those four
+  # reverse lookups are omitted. Query via the child entities' effectiveUsers ids.
+  liquidityMiningClaims: [LiquidityMiningClaim!]! @derivedFrom(field: "user")
+  liquidityMiningSeasonData: [LiquidityMiningSeason!]! @derivedFrom(field: "user")
+  liquidityMiningVestingPositions: [LiquidityMiningVestingPosition!]! @derivedFrom(field: "owner")
+  userParValues: [UserParValue!]! @derivedFrom(field: "user")
+  settings: [UserSetting!]! @derivedFrom(field: "effectiveUser")
+}
+
+type UserParValue {
+  id: ID! # `${chainId}-${userAddress}-${tokenAddress}`
+  user: User! @index
+  token: Token! @index
+  totalSupplyPar: BigDecimal!
+  totalBorrowPar: BigDecimal!
+}
+
+type AmmLiquidityPosition {
+  id: ID! # `${chainId}-${pairAddress}-${userAddress}`
+  user: User! @index
+  effectiveUser: User! @index
+  pair: AmmPair! @index
+  liquidityTokenBalance: BigDecimal!
+}
+
+type AmmLiquidityPositionSnapshot {
+  id: ID!
+  liquidityPosition: AmmLiquidityPosition! @index
+  timestamp: Int!
+  block: Int!
+  user: User! @index
+  effectiveUser: User!
+  pair: AmmPair! @index
+  token0PriceUSD: BigDecimal!
+  token1PriceUSD: BigDecimal!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  reserveUSD: BigDecimal!
+  liquidityTokenTotalSupply: BigDecimal!
+  liquidityTokenBalance: BigDecimal!
+  token0InterestIndex: InterestIndexSnapshot!
+  token1InterestIndex: InterestIndexSnapshot!
+}
+
+type Transaction {
+  id: ID! # `${chainId}-${transactionHash}`
+  blockNumber: BigInt! @index
+  timestamp: BigInt! @index
+  # subgraph stores these as non-derived arrays; here as arrays of entity ids.
+  intermittentAmmMints: [String!]!
+  intermittentAmmBurns: [String!]!
+  intermittentAmmTrades: [String!]!
+  ammMints: [AmmMint!]! @derivedFrom(field: "transaction")
+  ammBurns: [AmmBurn!]! @derivedFrom(field: "transaction")
+  ammTrades: [AmmTrade!]! @derivedFrom(field: "transaction")
+  asyncDepositCreations: [AsyncDeposit!]! @derivedFrom(field: "creationTransaction")
+  asyncWithdrawalCreations: [AsyncWithdrawal!]! @derivedFrom(field: "creationTransaction")
+  asyncDepositExecutions: [AsyncDeposit!]! @derivedFrom(field: "executionTransaction")
+  asyncWithdrawalExecutions: [AsyncWithdrawal!]! @derivedFrom(field: "executionTransaction")
+  deposits: [Deposit!]! @derivedFrom(field: "transaction")
+  withdrawals: [Withdrawal!]! @derivedFrom(field: "transaction")
+  transfers: [Transfer!]! @derivedFrom(field: "transaction")
+  trades: [Trade!]! @derivedFrom(field: "transaction")
+  liquidations: [Liquidation!]! @derivedFrom(field: "transaction")
+  vaporizations: [Vaporization!]! @derivedFrom(field: "transaction")
+  zaps: [Zap!]! @derivedFrom(field: "transaction")
+  liquidityMiningVestingPositionTransfers: [LiquidityMiningVestingPositionTransfer!]! @derivedFrom(field: "transaction")
+}
+
+type AmmMint {
+  id: ID!
+  transaction: Transaction! @index
+  timestamp: BigInt!
+  serialId: BigInt!
+  pair: AmmPair! @index
+  to: Bytes!
+  liquidity: BigDecimal!
+  sender: Bytes
+  amount0: BigDecimal
+  amount1: BigDecimal
+  logIndex: BigInt
+  amountUSD: BigDecimal
+  feeTo: Bytes
+  feeLiquidity: BigDecimal
+}
+
+type AmmBurn {
+  id: ID!
+  transaction: Transaction! @index
+  timestamp: BigInt!
+  pair: AmmPair! @index
+  serialId: BigInt!
+  liquidity: BigDecimal!
+  sender: Bytes
+  amount0: BigDecimal
+  amount1: BigDecimal
+  to: Bytes
+  logIndex: BigInt
+  amountUSD: BigDecimal
+  needsComplete: Boolean!
+  feeTo: Bytes
+  feeLiquidity: BigDecimal
+}
+
+type AmmTrade {
+  id: ID!
+  transaction: Transaction! @index
+  timestamp: BigInt!
+  pair: AmmPair! @index
+  sender: Bytes!
+  from: Bytes!
+  amount0In: BigDecimal!
+  amount1In: BigDecimal!
+  amount0Out: BigDecimal!
+  amount1Out: BigDecimal!
+  to: Bytes!
+  logIndex: BigInt!
+  serialId: BigInt!
+  amountUSD: BigDecimal!
+}
+
+type Bundle {
+  id: ID! # `${chainId}-1`
+  ethPrice: BigDecimal!
+}
+
+type OraclePrice {
+  id: ID! # `${chainId}-${tokenAddress}`
+  price: BigDecimal!
+  token: Token!
+  blockNumber: BigInt!
+  blockHash: Bytes!
+}
+
+type InterestIndex {
+  id: ID! # `${chainId}-${tokenAddress}`
+  token: Token!
+  borrowIndex: BigDecimal!
+  supplyIndex: BigDecimal!
+  lastUpdate: BigInt!
+}
+
+type InterestIndexSnapshot {
+  id: ID! # `${chainId}-${tokenAddress} - ${lastUpdate}`
+  token: Token! @index
+  borrowIndex: BigDecimal!
+  supplyIndex: BigDecimal!
+  updateTimestamp: BigInt!
+}
+
+type InterestRate {
+  id: ID! # `${chainId}-${tokenAddress}`
+  interestSetter: Bytes!
+  optimalUtilizationRate: BigInt!
+  lowerOptimalRate: BigInt!
+  upperOptimalRate: BigInt!
+  token: Token!
+  borrowInterestRate: BigDecimal!
+  supplyInterestRate: BigDecimal!
+}
+
+type MarketRiskInfo {
+  id: ID! # `${chainId}-${tokenAddress}`
+  token: Token!
+  marginPremium: BigDecimal!
+  liquidationRewardPremium: BigDecimal!
+  isBorrowingDisabled: Boolean! @index
+  supplyMaxWei: BigDecimal
+  borrowMaxWei: BigDecimal
+  earningsRateOverride: BigDecimal
+  oracle: Bytes!
+}
+
+type TotalPar {
+  id: ID! # `${chainId}-${tokenAddress}`
+  token: Token!
+  borrowPar: BigDecimal!
+  supplyPar: BigDecimal!
+}
+
+type MarginAccount {
+  id: ID! # `${chainId}-${userAddress}-${accountNumber}`
+  user: User! @index
+  effectiveUser: User! @index
+  accountNumber: BigInt!
+  lastUpdatedTimestamp: BigInt! @index
+  lastUpdatedBlockNumber: BigInt!
+  hasBorrowValue: Boolean! @index
+  hasSupplyValue: Boolean! @index
+  hasExpiration: Boolean! @index
+  tokenValues: [MarginAccountTokenValue!]! @derivedFrom(field: "marginAccount")
+  # subgraph stores these as [Token!]!; here as arrays of token ids.
+  borrowTokens: [String!]!
+  supplyTokens: [String!]!
+  expirationTokens: [String!]!
+}
+
+type MarginAccountTokenValue {
+  id: ID! # `${chainId}-${userAddress}-${accountNumber}-${marketId}`
+  marginAccount: MarginAccount! @index
+  effectiveUser: User! @index
+  token: Token! @index
+  valuePar: BigDecimal!
+  expirationTimestamp: BigInt @index
+  expiryAddress: String
+}
+
+type MarginAccountTokenValueSnapshot {
+  id: ID!
+  marginAccount: MarginAccount! @index
+  user: User! @index
+  marketId: BigInt!
+  token: Token! @index
+  valuePar: BigDecimal!
+  timestamp: Int!
+  block: Int!
+  valueWei: BigDecimal!
+  valueWeiUSD: BigDecimal!
+}
+
+type Deposit {
+  id: ID! # `${chainId}-${transactionHash}-${logIndex}`
+  transaction: Transaction! @index
+  logIndex: BigInt!
+  serialId: BigInt!
+  effectiveUser: User! @index
+  marginAccount: MarginAccount! @index
+  token: Token! @index
+  from: Bytes!
+  amountDeltaWei: BigDecimal!
+  amountDeltaPar: BigDecimal!
+  interestIndex: InterestIndexSnapshot!
+  amountUSDDeltaWei: BigDecimal!
+}
+
+type Withdrawal {
+  id: ID! # `${chainId}-${transactionHash}-${logIndex}`
+  transaction: Transaction! @index
+  logIndex: BigInt!
+  serialId: BigInt!
+  effectiveUser: User! @index
+  marginAccount: MarginAccount! @index
+  token: Token! @index
+  to: Bytes!
+  amountDeltaWei: BigDecimal!
+  amountDeltaPar: BigDecimal!
+  interestIndex: InterestIndexSnapshot!
+  amountUSDDeltaWei: BigDecimal!
+}
+
+type Transfer {
+  id: ID! # `${chainId}-${transactionHash}-${logIndex}`
+  transaction: Transaction! @index
+  logIndex: BigInt!
+  serialId: BigInt!
+  fromEffectiveUser: User! @index
+  fromMarginAccount: MarginAccount! @index
+  toEffectiveUser: User! @index
+  toMarginAccount: MarginAccount! @index
+  isSelfTransfer: Boolean!
+  walletsConcatenated: String!
+  effectiveWalletsConcatenated: String!
+  isTransferForMarginPosition: Boolean!
+  token: Token! @index
+  interestIndex: InterestIndexSnapshot!
+  amountDeltaWei: BigDecimal!
+  fromAmountDeltaPar: BigDecimal!
+  toAmountDeltaPar: BigDecimal!
+  amountUSDDeltaWei: BigDecimal!
+  effectiveUsers: [String!]!
+}
+
+type Liquidation {
+  id: ID! # `${chainId}-${transactionHash}-${logIndex}`
+  transaction: Transaction! @index
+  logIndex: BigInt!
+  serialId: BigInt!
+  solidEffectiveUser: User! @index
+  solidMarginAccount: MarginAccount! @index
+  liquidEffectiveUser: User! @index
+  liquidMarginAccount: MarginAccount! @index
+  heldToken: Token! @index
+  borrowedToken: Token! @index
+  heldTokenAmountDeltaWei: BigDecimal!
+  borrowedTokenAmountDeltaWei: BigDecimal!
+  solidBorrowedTokenAmountDeltaPar: BigDecimal!
+  solidHeldTokenAmountDeltaPar: BigDecimal!
+  liquidBorrowedTokenAmountDeltaPar: BigDecimal!
+  liquidHeldTokenAmountDeltaPar: BigDecimal!
+  heldTokenLiquidationRewardWei: BigDecimal!
+  heldInterestIndex: InterestIndexSnapshot!
+  borrowedInterestIndex: InterestIndexSnapshot!
+  borrowedTokenAmountUSD: BigDecimal!
+  heldTokenAmountUSD: BigDecimal!
+  heldTokenLiquidationRewardUSD: BigDecimal!
+  effectiveUsers: [String!]!
+}
+
+type Vaporization {
+  id: ID! # `${chainId}-${transactionHash}-${logIndex}`
+  transaction: Transaction! @index
+  logIndex: BigInt!
+  serialId: BigInt!
+  solidEffectiveUser: User! @index
+  solidMarginAccount: MarginAccount! @index
+  vaporEffectiveUser: User! @index
+  vaporMarginAccount: MarginAccount! @index
+  heldToken: Token! @index
+  borrowedToken: Token! @index
+  borrowedTokenAmountDeltaWei: BigDecimal!
+  heldTokenAmountDeltaWei: BigDecimal!
+  heldInterestIndex: InterestIndexSnapshot!
+  borrowedInterestIndex: InterestIndexSnapshot!
+  vaporBorrowedTokenAmountDeltaPar: BigDecimal!
+  solidHeldTokenAmountDeltaPar: BigDecimal!
+  solidBorrowedTokenAmountDeltaPar: BigDecimal!
+  amountUSDVaporized: BigDecimal!
+  effectiveUsers: [String!]!
+}
+
+type Trade {
+  id: ID! # `${chainId}-${transactionHash}-${logIndex}`
+  transaction: Transaction! @index
+  logIndex: BigInt!
+  serialId: BigInt!
+  traderAddress: Bytes!
+  timestamp: BigInt!
+  takerEffectiveUser: User! @index
+  takerMarginAccount: MarginAccount! @index
+  makerEffectiveUser: User @index
+  makerMarginAccount: MarginAccount
+  walletsConcatenated: String!
+  effectiveWalletsConcatenated: String!
+  takerToken: Token! @index
+  makerToken: Token! @index
+  takerInterestIndex: InterestIndexSnapshot!
+  makerInterestIndex: InterestIndexSnapshot!
+  takerTokenDeltaWei: BigDecimal!
+  makerTokenDeltaWei: BigDecimal!
+  takerInputTokenDeltaPar: BigDecimal!
+  takerOutputTokenDeltaPar: BigDecimal!
+  makerInputTokenDeltaPar: BigDecimal
+  makerOutputTokenDeltaPar: BigDecimal
+  amountUSD: BigDecimal!
+  takerAmountUSD: BigDecimal!
+  makerAmountUSD: BigDecimal!
+  liquidationType: String
+  effectiveUsers: [String!]!
+}
+
+type IntermediateTrade {
+  id: ID! # `${chainId}-${transactionHash}-${serialId}`
+  serialId: BigInt!
+  traderAddress: Bytes!
+  takerEffectiveUser: User!
+  takerMarginAccount: MarginAccount!
+  makerEffectiveUser: User
+  makerMarginAccount: MarginAccount
+  walletsConcatenated: String!
+  effectiveWalletsConcatenated: String!
+  takerInputDeltaPar: BigDecimal!
+  takerInputDeltaWei: BigDecimal!
+  takerOutputDeltaPar: BigDecimal!
+  takerOutputDeltaWei: BigDecimal!
+  makerInputDeltaPar: BigDecimal
+  makerInputDeltaWei: BigDecimal
+  makerOutputDeltaPar: BigDecimal
+  makerOutputDeltaWei: BigDecimal
+  effectiveUsers: [String!]!
+}
+
+type MostRecentTrade {
+  id: ID! # `${chainId}-${tokenAddress}`
+  trade: Trade!
+}
+
+type MarginPosition {
+  id: ID! # `${chainId}-${userAddress}-${accountNumber}`
+  effectiveUser: User! @index
+  marginAccount: MarginAccount! @index
+  isInitialized: Boolean!
+  openTimestamp: BigInt!
+  openTransaction: Transaction!
+  heldToken: Token @index
+  marginDeposit: BigDecimal!
+  marginDepositUSD: BigDecimal!
+  initialMarginDeposit: BigDecimal!
+  initialMarginDepositUSD: BigDecimal!
+  initialHeldAmountPar: BigDecimal!
+  initialHeldAmountWei: BigDecimal!
+  initialHeldAmountUSD: BigDecimal!
+  initialHeldPrice: BigDecimal!
+  initialHeldPriceUSD: BigDecimal!
+  closeHeldPrice: BigDecimal
+  closeHeldPriceUSD: BigDecimal
+  closeHeldAmountWei: BigDecimal
+  closeHeldAmountUSD: BigDecimal
+  closeHeldAmountSeized: BigDecimal
+  closeHeldAmountSeizedUSD: BigDecimal
+  heldAmountPar: BigDecimal!
+  owedToken: Token @index
+  initialOwedAmountPar: BigDecimal!
+  initialOwedAmountWei: BigDecimal!
+  initialOwedAmountUSD: BigDecimal!
+  initialOwedPrice: BigDecimal!
+  initialOwedPriceUSD: BigDecimal!
+  closeOwedPrice: BigDecimal
+  closeOwedPriceUSD: BigDecimal
+  closeOwedAmountWei: BigDecimal
+  closeOwedAmountUSD: BigDecimal
+  owedAmountPar: BigDecimal!
+  status: String! @index # OPEN, CLOSED, EXPIRED, LIQUIDATED
+  closeTimestamp: BigInt
+  closeTransaction: Transaction
+  expirationTimestamp: BigInt
+}
+
+type BorrowPositionAmount {
+  id: ID! # `${chainId}-${userAddress}-${accountNumber}-${tokenAddress}`
+  token: Token! @index
+  amountWei: BigDecimal!
+  amountPar: BigDecimal!
+  expirationTimestamp: BigInt
+}
+
+type BorrowPosition {
+  id: ID! # `${chainId}-${userAddress}-${accountNumber}`
+  effectiveUser: User! @index
+  marginAccount: MarginAccount! @index
+  openTimestamp: BigInt!
+  closeTimestamp: BigInt
+  status: String! @index # OPEN, CLOSED, LIQUIDATED
+  openTransaction: Transaction!
+  closeTransaction: Transaction
+  strategy: StrategyPosition
+  # subgraph stores these as non-derived entity arrays; here as arrays of entity ids.
+  amounts: [String!]!
+  allTokens: [String!]!
+  supplyTokens: [String!]!
+  borrowTokens: [String!]!
+  effectiveSupplyTokens: [String!]!
+  effectiveBorrowTokens: [String!]!
+}
+
+type ZapTraderParam {
+  id: ID! # `${chainId}-${zapId}-${traderParamIndex}`
+  zap: Zap! @index
+  traderType: String! # EXTERNAL_LIQUIDITY, INTERNAL_LIQUIDITY, ISOLATION_MODE_UNWRAPPER, ISOLATION_MODE_WRAPPER
+  traderAddress: Bytes!
+  tradeData: Bytes
+}
+
+type Zap {
+  id: ID! # `${chainId}-${transactionHash}-${logIndex}`
+  marginAccount: MarginAccount! @index
+  effectiveUser: User! @index
+  transaction: Transaction! @index
+  amountInToken: BigDecimal!
+  amountInUSD: BigDecimal!
+  amountOutToken: BigDecimal!
+  amountOutUSD: BigDecimal!
+  tokenPath: [String!]!
+  tradersPath: [ZapTraderParam!]! @derivedFrom(field: "zap")
+}
+
+type AsyncDeposit {
+  id: ID! # `${chainId}-${outputTokenAddress}-${key}`
+  key: Bytes!
+  creationTransaction: Transaction! @index
+  executionTransaction: Transaction @index
+  marginAccount: MarginAccount! @index
+  effectiveUser: User! @index
+  status: String! @index # CREATED, DEPOSIT_EXECUTED, DEPOSIT_FAILED, DEPOSIT_CANCELLED, DEPOSIT_CANCELLED_FAILED
+  inputToken: Token!
+  inputAmount: BigDecimal!
+  outputToken: Token!
+  minOutputAmount: BigDecimal!
+  outputAmount: BigDecimal!
+  isRetryable: Boolean!
+}
+
+type AsyncWithdrawal {
+  id: ID! # `${chainId}-${inputTokenAddress}-${key}`
+  key: Bytes!
+  creationTransaction: Transaction! @index
+  executionTransaction: Transaction @index
+  marginAccount: MarginAccount! @index
+  effectiveUser: User! @index
+  status: String! @index # CREATED, WITHDRAWAL_EXECUTED, WITHDRAWAL_EXECUTION_FAILED, WITHDRAWAL_CANCELLED
+  inputToken: Token!
+  inputAmount: BigDecimal!
+  outputToken: Token!
+  minOutputAmount: BigDecimal!
+  outputAmount: BigDecimal!
+  isRetryable: Boolean!
+  isLiquidation: Boolean!
+  extraData: Bytes!
+}
+
+type LiquidityMiningVester {
+  id: ID! # `${chainId}-${vesterAddress}`
+  oTokenAddress: Bytes!
+  pairToken: Token!
+  paymentToken: Token!
+}
+
+type LiquidityMiningVestingPosition {
+  id: ID! # `${chainId}-${vesterAddress}-${nftId}`
+  vester: LiquidityMiningVester! @index
+  positionId: BigInt!
+  status: String! @index # ACTIVE, CLOSED, FORCE_CLOSED, EMERGENCY_CLOSED
+  creator: User! @index
+  owner: User! @index
+  duration: BigInt!
+  startTimestamp: BigInt!
+  endTimestamp: BigInt!
+  closeTimestamp: BigInt
+  oTokenAmount: BigDecimal!
+  pairAmountPar: BigDecimal!
+  paymentAmountWei: BigDecimal
+  pairTaxesPaid: BigDecimal
+  openTransaction: Transaction!
+  closeTransaction: Transaction
+  transfers: [LiquidityMiningVestingPositionTransfer!]! @derivedFrom(field: "vestingPosition")
+}
+
+type LiquidityMiningVestingPositionTransfer {
+  id: ID!
+  transaction: Transaction! @index
+  logIndex: BigInt!
+  serialId: BigInt!
+  fromEffectiveUser: User @index
+  toEffectiveUser: User @index
+  pairInterestIndex: InterestIndexSnapshot
+  vestingPosition: LiquidityMiningVestingPosition! @index
+}
+
+type LiquidityMiningClaim {
+  id: ID! # `${chainId}-${distributor}-${user}-${epoch}`
+  distributor: Bytes!
+  user: User! @index
+  epoch: Int! @index
+  seasonNumber: Int!
+  amount: BigDecimal!
+}
+
+type LiquidityMiningSeason {
+  id: ID! # `${chainId}-${distributor}-${user}-${seasonNumber}`
+  distributor: Bytes!
+  user: User! @index
+  seasonNumber: Int! @index
+  totalClaimAmount: BigDecimal!
+}
+
+type LiquidityMiningLevelUpdateRequest {
+  id: ID! # `${chainId}-${requestId}`
+  requestId: BigInt!
+  user: User! @index
+  level: Int
+  isFulfilled: Boolean! @index
+  initiateTransaction: Transaction!
+  fulfilmentTransaction: Transaction
+}
+
+type DolomiteSetting {
+  id: ID! # `${chainId}-${dolomiteAddress}-${settingsHash}`
+  dolomite: DolomiteMargin! @index
+  key: Bytes!
+  value: String!
+}
+
+type UserSetting {
+  id: ID! # `${chainId}-${userAddress}-${settingsHash}`
+  effectiveUser: User! @index
+  key: Bytes!
+  value: String!
+}
+
+type TokenSetting {
+  id: ID! # `${chainId}-${tokenAddress}-${settingsHash}`
+  token: Token! @index
+  key: Bytes!
+  value: String!
+}
+
+type StrategyPosition {
+  id: ID! # `${chainId}-${userAddress}-${accountNumber}`
+  effectiveUser: User! @index
+  marginAccount: MarginAccount! @index
+  strategyId: BigInt!
+  positionId: BigInt!
+  # NOTE: singular one-to-one derived field `borrowPosition` dropped (Envio supports
+  # only list-valued @derivedFrom). Query BorrowPosition by its `strategy` field instead.
+}

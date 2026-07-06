@@ -1,0 +1,343 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: dolomite
+description: Dolomite protocol indexer (1:1 port of the full Dolomite subgraph)
+address_format: lowercase
+
+field_selection:
+  transaction_fields:
+    - hash
+    - from
+
+contracts:
+  # DolomiteMargin = subgraph MarginCore + MarginAdmin data sources (same address, one ABI).
+  - name: DolomiteMargin
+    abi_file_path: ./abis/dolomite-margin.events.json
+    events:
+      # MarginCore
+      - event: "LogIndexUpdate(uint256 indexed market, (uint96 borrow,uint96 supply,uint32 lastUpdate) index)"
+        name: LogIndexUpdateOld
+      - event: "LogIndexUpdate(uint256 indexed market, (uint112 borrow,uint112 supply,uint32 lastUpdate) index)"
+        name: LogIndexUpdateNew
+      - event: LogOraclePrice
+      - event: LogDeposit
+      - event: LogWithdraw
+      - event: LogTransfer
+      - event: LogBuy
+      - event: LogSell
+      - event: LogTrade
+      - event: LogLiquidate
+      - event: LogVaporize
+      - event: LogCall
+      # MarginAdmin
+      - event: LogAddMarket
+      - event: LogRemoveMarket
+      - event: LogSetIsClosing
+      - event: LogSetPriceOracle
+      - event: LogSetInterestSetter
+      - event: LogSetMarginPremium
+      - event: LogSetSpreadPremium
+      - event: LogSetLiquidationSpreadPremium
+      - event: LogSetMaxWei
+      - event: LogSetMaxSupplyWei
+      - event: LogSetMaxBorrowWei
+      - event: LogSetEarningsRateOverride
+      - event: LogSetMarginRatio
+      - event: LogSetLiquidationSpread
+      - event: LogSetEarningsRate
+      - event: LogSetMinBorrowedValue
+      - event: LogSetAccountMaxNumberOfMarketsWithBalances
+      - event: LogSetOracleSentinel
+      - event: LogSetCallbackGasLimit
+      - event: LogSetDefaultAccountRiskOverrideSetter
+      - event: LogSetAccountRiskOverrideSetter
+      - event: LogSetGlobalOperator
+      - event: LogSetAutoTraderIsSpecial
+
+  - name: DolomiteMarginExpiry
+    abi_file_path: ./abis/dolomite-margin-expiry.events.json
+    events:
+      - event: ExpirySet
+      - event: LogExpiryRampTimeSet
+
+  - name: EventEmitterRegistry
+    abi_file_path: ./abis/event-emitter-registry.events.json
+    events:
+      - event: AsyncDepositCreated
+      - event: AsyncDepositOutputAmountUpdated
+      - event: AsyncDepositExecuted
+      - event: AsyncDepositFailed
+      - event: AsyncDepositCancelled
+      - event: AsyncDepositCancelledFailed
+      - event: AsyncWithdrawalCreated
+      - event: AsyncWithdrawalOutputAmountUpdated
+      - event: AsyncWithdrawalExecuted
+      - event: AsyncWithdrawalFailed
+      - event: AsyncWithdrawalCancelled
+      - event: RewardClaimed
+      - event: DistributorRegistered
+      - event: DolomiteSettingChanged
+      - event: UserSettingChanged
+      - event: TokenSettingChanged
+
+  - name: ModularLinearStepFunctionInterestSetter
+    abi_file_path: ./abis/modular-linear-step-function-interest-setter.events.json
+    events:
+      - event: SettingsChanged
+
+  - name: BorrowPositionProxy
+    abi_file_path: ./abis/borrow-position-proxy.events.json
+    events:
+      - event: BorrowPositionOpen
+
+  - name: GenericTraderProxy
+    abi_file_path: ./abis/generic-trader-proxy.events.json
+    events:
+      - event: ZapExecuted
+
+  - name: DolomiteAmmFactory
+    abi_file_path: ./abis/dolomite-amm-factory.events.json
+    events:
+      - event: PairCreated
+
+  - name: DolomiteAmmRouter
+    abi_file_path: ./abis/dolomite-amm-router-proxy.events.json
+    events:
+      - event: MarginPositionOpen
+      - event: MarginPositionClose
+
+  - name: LiquidityMiningClaimer
+    abi_file_path: ./abis/liquidity-mining-claimer.events.json
+    events:
+      - event: Claimed
+
+  - name: LiquidityMiningVester
+    abi_file_path: ./abis/liquidity-mining-vester.events.json
+    events:
+      - event: "VestingPositionCreated((address creator,uint256 id,uint256 startTime,uint256 duration,uint256 amount) vestingPosition)"
+        name: VestingPositionCreatedOld
+      - event: "VestingPositionCreated((address creator,uint256 id,uint256 startTime,uint256 duration,uint256 oTokenAmount,uint256 pairAmount) vestingPosition)"
+        name: VestingPositionCreatedNew
+      - event: "VestingStarted(address indexed owner, uint256 duration, uint256 amount, uint256 vestingId)"
+        name: VestingStartedOld
+      - event: "VestingStarted(address indexed owner, uint256 duration, uint256 oTokenAmount, uint256 pairAmount, uint256 vestingId)"
+        name: VestingStartedNew
+      - event: PositionDurationExtended
+      - event: Transfer
+      - event: PositionClosed
+      - event: PositionForceClosed
+      - event: EmergencyWithdraw
+      - event: LevelRequestInitiated
+      - event: LevelRequestFinalized
+
+  # --- Dynamic (factory-registered) contracts: no fixed address ---
+  - name: AmmPair
+    abi_file_path: ./abis/amm-pair.events.json
+    events:
+      - event: Mint
+      - event: Burn
+      - event: Swap
+      - event: Transfer
+      - event: Sync
+
+  - name: IsolationModeFactory
+    abi_file_path: ./abis/isolation-mode-vault-factory.events.json
+    events:
+      - event: VaultCreated
+
+chains:
+  - id: 1 # Ethereum
+    start_block: 22753940
+    rpc:
+      - url: ${ENVIO_RPC_URL_1}
+        for: fallback
+    contracts:
+      - name: DolomiteMargin
+        address: "0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D"
+      - name: DolomiteMarginExpiry
+        address: "0x2Ae007882b91206942c70ADc833A61Ee531D8D5D"
+      - name: EventEmitterRegistry
+        address:
+          - "0x6d40138c99F6D9116F738F44A0E6751A42232486"
+          - "0x12d6dB1F1834658F01FC69a506F49BEE424B38cc"
+      - name: ModularLinearStepFunctionInterestSetter
+        address: "0xe125c33e0190E7F2048D28188d53A1C23aCE6029"
+      - name: BorrowPositionProxy
+        address:
+          - "0x67567Fce98A44745820069C37C395426F1C30ba6"
+          - "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+      - name: GenericTraderProxy
+        address: "0xb50BcDFC914e0AfB484Dee621F49010862Fb928d"
+
+  - id: 42161 # Arbitrum One
+    start_block: 28220369
+    rpc:
+      - url: ${ENVIO_RPC_URL_42161}
+        for: fallback
+    contracts:
+      - name: DolomiteMargin
+        address: "0x6Bd780E7fDf01D77e4d475c821f1e7AE05409072"
+      - name: DolomiteMarginExpiry
+        address: "0xDEc1ae3b570ac3c57871BBD7bFeacC807f973Bea"
+      - name: EventEmitterRegistry
+        address: "0x4BfF12773B0Dc3Cb35f174B5CD351F662018CC2F"
+      - name: ModularLinearStepFunctionInterestSetter
+        address: "0xe125c33e0190E7F2048D28188d53A1C23aCE6029"
+      - name: BorrowPositionProxy
+        address:
+          - "0xe43638797513ef7A6d326a95E8647d86d2f5a099"
+          - "0x38E49A617305101216eC6306e3a18065D14Bf3a7"
+      - name: GenericTraderProxy
+        address:
+          - "0x3e647e1242a8ce0ce013cb967fbff742d7846242"
+          - "0xe50c3118349f09abafc1bb01ad5cb946b1de83f6"
+      - name: DolomiteAmmFactory
+        address: "0xD99c21C96103F36BC1FA26DD6448af4DA030c1EF"
+      - name: DolomiteAmmRouter
+        address:
+          - "0xa09B4a3FC92965E587a94539ee8B35ECf42D5A08"
+          - "0xD8F9C59176AE25414FC4180f6433Fc45b0cbb632"
+      - name: LiquidityMiningClaimer
+        address: "0x66Cd7D0cC677F42f6662622C60A5E60EF573db67"
+      - name: LiquidityMiningVester
+        address:
+          - "0x531BC6E97b65adF8B3683240bd594932Cfb63797"
+          - "0xeC0f08BC015A0d0fBA1DF0B8B11d4779F5a04326"
+
+  - id: 8453 # Base
+    start_block: 23848714
+    rpc:
+      - url: ${ENVIO_RPC_URL_8453}
+        for: fallback
+    contracts:
+      - name: DolomiteMargin
+        address: "0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D"
+      - name: DolomiteMarginExpiry
+        address: "0x2Ae007882b91206942c70ADc833A61Ee531D8D5D"
+      - name: EventEmitterRegistry
+        address:
+          - "0x6d40138c99F6D9116F738F44A0E6751A42232486"
+          - "0x12d6dB1F1834658F01FC69a506F49BEE424B38cc"
+      - name: ModularLinearStepFunctionInterestSetter
+        address: "0xe125c33e0190E7F2048D28188d53A1C23aCE6029"
+      - name: BorrowPositionProxy
+        address:
+          - "0x67567Fce98A44745820069C37C395426F1C30ba6"
+          - "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+      - name: GenericTraderProxy
+        address: "0xb50BcDFC914e0AfB484Dee621F49010862Fb928d"
+
+  - id: 80094 # Berachain
+    start_block: 160822
+    rpc:
+      - url: ${ENVIO_RPC_URL_80094}
+        for: fallback
+    contracts:
+      - name: DolomiteMargin
+        address: "0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D"
+      - name: DolomiteMarginExpiry
+        address: "0x2Ae007882b91206942c70ADc833A61Ee531D8D5D"
+      - name: EventEmitterRegistry
+        address:
+          - "0x6d40138c99F6D9116F738F44A0E6751A42232486"
+          - "0x12d6dB1F1834658F01FC69a506F49BEE424B38cc"
+      - name: ModularLinearStepFunctionInterestSetter
+        address: "0xe125c33e0190E7F2048D28188d53A1C23aCE6029"
+      - name: BorrowPositionProxy
+        address:
+          - "0x67567Fce98A44745820069C37C395426F1C30ba6"
+          - "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+      - name: GenericTraderProxy
+        address: "0xb50BcDFC914e0AfB484Dee621F49010862Fb928d"
+
+  - id: 56 # BSC
+    start_block: 80641282
+    rpc:
+      - url: ${ENVIO_RPC_URL_56}
+        for: fallback
+    contracts:
+      - name: DolomiteMargin
+        address: "0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D"
+      - name: DolomiteMarginExpiry
+        address: "0x2Ae007882b91206942c70ADc833A61Ee531D8D5D"
+      - name: EventEmitterRegistry
+        address:
+          - "0x6d40138c99F6D9116F738F44A0E6751A42232486"
+          - "0x12d6dB1F1834658F01FC69a506F49BEE424B38cc"
+      - name: ModularLinearStepFunctionInterestSetter
+        address: "0xe125c33e0190E7F2048D28188d53A1C23aCE6029"
+      - name: BorrowPositionProxy
+        address:
+          - "0x67567Fce98A44745820069C37C395426F1C30ba6"
+          - "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+      - name: GenericTraderProxy
+        address: "0xb50BcDFC914e0AfB484Dee621F49010862Fb928d"
+
+  - id: 5000 # Mantle
+    start_block: 63091469
+    rpc:
+      - url: ${ENVIO_RPC_URL_5000}
+        for: fallback
+    contracts:
+      - name: DolomiteMargin
+        address: "0xE6Ef4f0B2455bAB92ce7cC78E35324ab58917De8"
+      - name: DolomiteMarginExpiry
+        address: "0x6df6DBF5053c3771217376fb3ef7F1f5d4889a25"
+      - name: EventEmitterRegistry
+        address:
+          - "0x778CeA4cE43ba1a3eD6306CA692B8d9D3dFB827c"
+          - "0x2fdb2bfB1F5926e9996fd86Fe5E0782b126f8785"
+      - name: ModularLinearStepFunctionInterestSetter
+        address: "0xe125c33e0190E7F2048D28188d53A1C23aCE6029"
+      - name: BorrowPositionProxy
+        address:
+          - "0x97a08604a56f16947a4a956eFEc2Ef223364b733"
+          - "0xe99A7e4556CaF7925fbac52765128e524E9Dd793"
+      - name: GenericTraderProxy
+        address: "0x8A13C00facd1971FBb7CED5EbF88f9e900419D5C"
+
+  - id: 1101 # Polygon zkEVM
+    start_block: 9597567
+    rpc:
+      - url: ${ENVIO_RPC_URL_1101}
+        for: fallback
+    contracts:
+      - name: DolomiteMargin
+        address: "0x836b557Cf9eF29fcF49C776841191782df34e4e5"
+      - name: DolomiteMarginExpiry
+        address: "0xb3F81b0F53CDEe755c70665923e08a8f0e81d0c3"
+      - name: EventEmitterRegistry
+        address:
+          - "0x2e9BE819D04CB62bF3816B627c9DfF819136CEc4"
+          - "0xB4F0eB9c8fb5FBabEF339f8738173dB645c4147d"
+      - name: ModularLinearStepFunctionInterestSetter
+        address: "0xe125c33e0190E7F2048D28188d53A1C23aCE6029"
+      - name: BorrowPositionProxy
+        address:
+          - "0xc28A4EC9f09E4071E3707eAACa5c3754fA4f5Faa"
+          - "0xB3fF983d7927540B7f92602657a2a26977664e77"
+      - name: GenericTraderProxy
+        address: "0x660bd80f67Aa9C7bFB82933e1068F8F616D88255"
+
+  # - id: 196 # X-Layer
+  #   start_block: 832938
+  #   rpc:
+  #     # X-Layer has no HyperSync endpoint, so RPC must be the primary sync source.
+  #     - url: ${ENVIO_RPC_URL_196}
+  #       for: sync
+  #   contracts:
+  #     - name: DolomiteMargin
+  #       address: "0x836b557Cf9eF29fcF49C776841191782df34e4e5"
+  #     - name: DolomiteMarginExpiry
+  #       address: "0x8B808a1fEEf1d9cdd00Fb46A19e4814e5646197C"
+  #     - name: EventEmitterRegistry
+  #       address:
+  #         - "0xd86233E2E53a87F0735C5643f3189cfEC07269bF"
+  #         - "0x0A512510438bD340C59a000e997709EedC0B7589"
+  #     - name: ModularLinearStepFunctionInterestSetter
+  #       address: "0xe125c33e0190E7F2048D28188d53A1C23aCE6029"
+  #     - name: BorrowPositionProxy
+  #       address:
+  #         - "0xB4F0eB9c8fb5FBabEF339f8738173dB645c4147d"
+  #         - "0x694F7Ba53e331D8494043A41262dC063B0F5C8b4"
+  #     - name: GenericTraderProxy
+  #       address: "0xE355Df372C4FAaeDf895B958De5D7FB89215aeEa"
