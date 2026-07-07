@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       envio:
-        specifier: 3.2.1
-        version: 3.2.1(react-dom@19.2.7(react@19.2.5))(typescript@6.0.3)
+        specifier: 3.3.0-alpha.7
+        version: 3.3.0-alpha.7(react-dom@19.2.7(react@19.2.5))(typescript@6.0.3)
       viem:
         specifier: ^2.54.1
         version: 2.54.1(typescript@6.0.3)
@@ -57,49 +57,6 @@ packages:
 
   '@emnapi/wasi-threads@1.2.2':
     resolution: {integrity: sha512-c95qOXkHdydNKhscBTebqEC1CVAZpyqOfVfBzQ1qgzyl3gfeldUjIggDbIZgDKsHLgnsM+igH7TJ/eAasaVuMA==}
-
-  '@envio-dev/hyperfuel-client-darwin-arm64@1.2.2':
-    resolution: {integrity: sha512-eQyd9kJCIz/4WCTjkjpQg80DA3pdneHP7qhJIVQ2ZG+Jew9o5XDG+uI0Y16AgGzZ6KGmJSJF6wyUaaAjJfbO1Q==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@envio-dev/hyperfuel-client-darwin-x64@1.2.2':
-    resolution: {integrity: sha512-l7lRMSoyIiIvKZgQPfgqg7H1xnrQ37A8yUp4S2ys47R8f/wSCSrmMaY1u7n6CxVYCpR9fajwy0/356UgwwhVKw==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@envio-dev/hyperfuel-client-linux-arm64-gnu@1.2.2':
-    resolution: {integrity: sha512-kNiC/1fKuXnoSxp8yEsloDw4Ot/mIcNoYYGLl2CipSIpBtSuiBH5nb6eBcxnRZdKOwf5dKZtZ7MVPL9qJocNJw==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@envio-dev/hyperfuel-client-linux-x64-gnu@1.2.2':
-    resolution: {integrity: sha512-XDkvkBG/frS+xiZkJdY4KqOaoAwyxPdi2MysDQgF8NmZdssi32SWch0r4LTqKWLLlCBg9/R55POeXL5UAjg2wQ==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@envio-dev/hyperfuel-client-linux-x64-musl@1.2.2':
-    resolution: {integrity: sha512-DKnKJJSwsYtA7YT0EFGhFB5Eqoo42X0l0vZBv4lDuxngEXiiNjeLemXoKQVDzhcbILD7eyXNa5jWUc+2hpmkEg==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@envio-dev/hyperfuel-client-win32-x64-msvc@1.2.2':
-    resolution: {integrity: sha512-SwIgTAVM9QhCFPyHwL+e1yQ6o3paV6q25klESkXw+r/KW9QPhOOyA6Yr8nfnur3uqMTLJHAKHTLUnkyi/Nh7Aw==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [win32]
-
-  '@envio-dev/hyperfuel-client@1.2.2':
-    resolution: {integrity: sha512-raKA6DshYSle0sAOHBV1OkSRFMN+Mkz8sFiMmS3k+m5nP6pP56E17CRRePBL5qmR6ZgSEvGOz/44QUiKNkK9Pg==}
-    engines: {node: '>= 10'}
 
   '@esbuild/aix-ppc64@0.27.7':
     resolution: {integrity: sha512-EKX3Qwmhz1eMdEJokhALr0YiD0lhQNwDqkPYyPhiSwKrh7/4KRjQc04sZ8db+5DVVnZ1LmbNDI1uAMPEUBnQPg==}
@@ -701,36 +658,36 @@ packages:
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
 
-  envio-darwin-arm64@3.2.1:
-    resolution: {integrity: sha512-PohM1rGjlNxV0W/BOQOitsVPua944B2t2M0p81x9VpsZOwNWc9SgPsEjIsV4ZJOIceJaHrmWZnfwaWubgDGKMg==}
+  envio-darwin-arm64@3.3.0-alpha.7:
+    resolution: {integrity: sha512-sC87kppIRHI1+YlXuVvJWvbld6NqlAEbctIZgtHnR0C4aB9SMhDz7/zKBkIlAvyj9wqf3CzEEJGM80jOVrls5Q==}
     cpu: [arm64]
     os: [darwin]
 
-  envio-darwin-x64@3.2.1:
-    resolution: {integrity: sha512-70zjTm4tNFzhigja0mHqmG03JQu56e9JCTQR7zoEhVvwj47cSgAPmQIihpaPuDCcMIYibzrlW7pFKdnXAZp3fQ==}
+  envio-darwin-x64@3.3.0-alpha.7:
+    resolution: {integrity: sha512-Y+NC+26U6h05ZqzKRnpViLsVVFsZeCUTZy4iVbP3XJf/lPYGup9E0ZkZgM6UWednRQZ5C6XGWHArzzY5hijf+Q==}
     cpu: [x64]
     os: [darwin]
 
-  envio-linux-arm64@3.2.1:
-    resolution: {integrity: sha512-OOVnX+aM8xJ5zYBmpqzSVCX5KFU+wi1gSfbv9X+nXk1rLjicHGm5U847oDmYBF5iyxkJDQBMsW9sr+7X4g8Yhg==}
+  envio-linux-arm64@3.3.0-alpha.7:
+    resolution: {integrity: sha512-w+izFX19PfSHqqpop70L7MsiO5kGnN3pgfPob0STUNZ6p/hHsFZqi5YOhIexDyUqQYoUwD+i6oflGN+HuDLmiw==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  envio-linux-x64-musl@3.2.1:
-    resolution: {integrity: sha512-/0lWrS/l2VYwdx7t0QvBE8b1R2vsnWpgi2q2xWqSmyOI9SOPU1q9YUElkhaDQFHEUXvqzyDDZPqxQacFtJggXw==}
+  envio-linux-x64-musl@3.3.0-alpha.7:
+    resolution: {integrity: sha512-GTBUPLsCQIjUYd8OZAe8zNrFys6oFTJbrHfT6qV+FIg6rqzKESCcRW75h/LARMezxGPk6f7H56V14Zjo7OwGCA==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  envio-linux-x64@3.2.1:
-    resolution: {integrity: sha512-YACCs+YdemYj4KBYOw/o6fi3hofAWrJ8VOeCwaOWEAzlqQxqkZ6h3O7puZWLnmjgdJvBAReUikFxI+E9MiyHOQ==}
+  envio-linux-x64@3.3.0-alpha.7:
+    resolution: {integrity: sha512-IuNGO1BJm0W6szqIWXjYB/sLTkghNnbMCrhrQjljQZa4/jdyScENwkPJaHDrC+7OmsSIcAy5JhkCogtlbanrtw==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  envio@3.2.1:
-    resolution: {integrity: sha512-mPvVeomNzi3pz7KqBEpfaiVM8JKZzNphAipT47KiTB+HUrvuMBGmqODgLYUJqQ+iJxiRuCqOVNDy8oCMsZjfwg==}
+  envio@3.3.0-alpha.7:
+    resolution: {integrity: sha512-G5hiSrAhPvN9HcwBif1v+s4jndKH9vaPgySzrK5od1i0kwbvbyIdqHieEHntosByU0y3oDtrT8EjDKyOHJ7V8g==}
     engines: {node: '>=22.0.0'}
     hasBin: true
 
@@ -1142,14 +1099,6 @@ packages:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
 
-  ox@0.12.4:
-    resolution: {integrity: sha512-+P+C7QzuwPV8lu79dOwjBKfB2CbnbEXe/hfyyrff1drrO1nOOj3Hc87svHfcW1yneRr3WXaKr6nz11nq+/DF9Q==}
-    peerDependencies:
-      typescript: '>=5.4.0'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   ox@0.14.29:
     resolution: {integrity: sha512-M5j87Ec4V99MQdRct/g09eWXW60g6zhHTUs1lr4deUtrPDnezBdCJTgKd7pxqTpSZBFveV0ALi9jMMuT1qKyNg==}
     peerDependencies:
@@ -1476,8 +1425,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  viem@2.46.2:
-    resolution: {integrity: sha512-w8Qv5Vyo7TfXcH3vgmxRa1NRvzJCDy2aSGSRsJn3503nC/qVbgEQ+n3aj/CkqWXbloudZh97h5o5aQrQSVGy0w==}
+  viem@2.54.0:
+    resolution: {integrity: sha512-DW6KW3m89+3MLozFNPuI9Nhz2hJw375hUo1bpbo3qXipBvjdjF26B/d3U5adVyLGKOfqK4XeA1wPDWQTFQ/ltA==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -1595,18 +1544,6 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
-  ws@8.18.3:
-    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
   ws@8.20.1:
     resolution: {integrity: sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w==}
     engines: {node: '>=10.0.0'}
@@ -1684,33 +1621,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
-
-  '@envio-dev/hyperfuel-client-darwin-arm64@1.2.2':
-    optional: true
-
-  '@envio-dev/hyperfuel-client-darwin-x64@1.2.2':
-    optional: true
-
-  '@envio-dev/hyperfuel-client-linux-arm64-gnu@1.2.2':
-    optional: true
-
-  '@envio-dev/hyperfuel-client-linux-x64-gnu@1.2.2':
-    optional: true
-
-  '@envio-dev/hyperfuel-client-linux-x64-musl@1.2.2':
-    optional: true
-
-  '@envio-dev/hyperfuel-client-win32-x64-msvc@1.2.2':
-    optional: true
-
-  '@envio-dev/hyperfuel-client@1.2.2':
-    optionalDependencies:
-      '@envio-dev/hyperfuel-client-darwin-arm64': 1.2.2
-      '@envio-dev/hyperfuel-client-darwin-x64': 1.2.2
-      '@envio-dev/hyperfuel-client-linux-arm64-gnu': 1.2.2
-      '@envio-dev/hyperfuel-client-linux-x64-gnu': 1.2.2
-      '@envio-dev/hyperfuel-client-linux-x64-musl': 1.2.2
-      '@envio-dev/hyperfuel-client-win32-x64-msvc': 1.2.2
 
   '@esbuild/aix-ppc64@0.27.7':
     optional: true
@@ -2167,26 +2077,25 @@ snapshots:
     dependencies:
       once: 1.4.0
 
-  envio-darwin-arm64@3.2.1:
+  envio-darwin-arm64@3.3.0-alpha.7:
     optional: true
 
-  envio-darwin-x64@3.2.1:
+  envio-darwin-x64@3.3.0-alpha.7:
     optional: true
 
-  envio-linux-arm64@3.2.1:
+  envio-linux-arm64@3.3.0-alpha.7:
     optional: true
 
-  envio-linux-x64-musl@3.2.1:
+  envio-linux-x64-musl@3.3.0-alpha.7:
     optional: true
 
-  envio-linux-x64@3.2.1:
+  envio-linux-x64@3.3.0-alpha.7:
     optional: true
 
-  envio@3.2.1(react-dom@19.2.7(react@19.2.5))(typescript@6.0.3):
+  envio@3.3.0-alpha.7(react-dom@19.2.7(react@19.2.5))(typescript@6.0.3):
     dependencies:
       '@clickhouse/client': 1.17.0
       '@elastic/ecs-pino-format': 1.4.0
-      '@envio-dev/hyperfuel-client': 1.2.2
       '@fuel-ts/crypto': 0.96.1
       '@fuel-ts/errors': 0.96.1
       '@fuel-ts/hasher': 0.96.1
@@ -2210,14 +2119,14 @@ snapshots:
       react: 19.2.5
       rescript-schema: 9.5.1
       tsx: 4.21.0
-      viem: 2.46.2(typescript@6.0.3)
+      viem: 2.54.0(typescript@6.0.3)
       yargs: 17.7.2
     optionalDependencies:
-      envio-darwin-arm64: 3.2.1
-      envio-darwin-x64: 3.2.1
-      envio-linux-arm64: 3.2.1
-      envio-linux-x64: 3.2.1
-      envio-linux-x64-musl: 3.2.1
+      envio-darwin-arm64: 3.3.0-alpha.7
+      envio-darwin-x64: 3.3.0-alpha.7
+      envio-linux-arm64: 3.3.0-alpha.7
+      envio-linux-x64: 3.3.0-alpha.7
+      envio-linux-x64-musl: 3.3.0-alpha.7
     transitivePeerDependencies:
       - '@types/react'
       - bufferutil
@@ -2500,10 +2409,6 @@ snapshots:
     dependencies:
       kind-of: 3.2.2
 
-  isows@1.0.7(ws@8.18.3):
-    dependencies:
-      ws: 8.18.3
-
   isows@1.0.7(ws@8.20.1):
     dependencies:
       ws: 8.20.1
@@ -2624,21 +2529,6 @@ snapshots:
   onetime@5.1.2:
     dependencies:
       mimic-fn: 2.1.0
-
-  ox@0.12.4(typescript@6.0.3):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.1
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@6.0.3)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - zod
 
   ox@0.14.29(typescript@6.0.3):
     dependencies:
@@ -2992,16 +2882,16 @@ snapshots:
 
   vary@1.1.2: {}
 
-  viem@2.46.2(typescript@6.0.3):
+  viem@2.54.0(typescript@6.0.3):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@6.0.3)
-      isows: 1.0.7(ws@8.18.3)
-      ox: 0.12.4(typescript@6.0.3)
-      ws: 8.18.3
+      isows: 1.0.7(ws@8.20.1)
+      ox: 0.14.29(typescript@6.0.3)
+      ws: 8.20.1
     optionalDependencies:
       typescript: 6.0.3
     transitivePeerDependencies:
@@ -3094,8 +2984,6 @@ snapshots:
       strip-ansi: 7.2.0
 
   wrappy@1.0.2: {}
-
-  ws@8.18.3: {}
 
   ws@8.20.1: {}
 

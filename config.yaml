@@ -3,6 +3,12 @@ name: dolomite
 description: Dolomite protocol indexer (1:1 port of the full Dolomite subgraph)
 address_format: lowercase
 
+# Lower than the 5000 default: this indexer runs many RPC Effects (oracle getMarketPrice,
+# token metadata) per balance-change event, and the preload pass materializes the whole
+# batch in the JS heap. Smaller batches = lower peak memory during multichain backfill.
+# Tune up/down (500-2000) based on observed memory headroom.
+full_batch_size: 1000
+
 field_selection:
   transaction_fields:
     - hash
